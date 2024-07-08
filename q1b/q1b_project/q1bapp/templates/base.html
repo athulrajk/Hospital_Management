@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Q1B</title>
+    <link
+      rel="shortcut icon"
+      type="image/png"
+      href="../assets/images/logos/favicon.png"
+    />
+    <link rel="stylesheet" href="{% static 'assets/css/styles.min.css' %}" />
+
+    {% comment %} boostrap {% endcomment %}
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      .modal-xl {
+        max-width: 60%;
+      }
+    </style>
+
+    {% comment %} ------------------------- {% endcomment %}
+  </head>
+ 
+
+  <style>
+    .photo-selector {
+    margin-bottom: 20px;
+}
+
+.photo-display {
+    width: 150px;
+    height: 150px;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+}
+
+.photo-display img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+
+.menu-toggle {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    cursor: not-allowed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menu-toggle::before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 4px;
+    background: #000;
+    box-shadow: 0 8px 0 #000,
+                0 -8px 0 #000;
+}
+
+/* profile menu */
+
+.profile {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    text-align: end;
+}
+
+.profile h3 {
+    text-align: end;
+    line-height: 1;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.profile p {
+    line-height: 1;
+    font-size: 14px;
+    opacity: .6;
+}
+
+.profile .img-box {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.profile .img-box img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* menu (the right one) */
+
+.menu {
+    position: absolute;
+    top: calc(100% + 24px);
+    right: 16px;
+    width: 200px;
+    min-height: 100px;
+    background: #fff;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+    opacity: 0;
+    transform: translateY(-10px);
+    visibility: hidden;
+    transition: 300ms;
+}
+
+.menu::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    right: 14px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    transform: rotate(45deg);
+    z-index: -1;
+}
+
+.menu.active {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+/* menu links */
+
+.menu ul {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    background: #fff;
+}
+
+.menu ul li {
+    list-style: none;
+}
+
+.menu ul li:hover {
+    background: #eee;
+}
+
+.menu ul li a {
+    text-decoration: none;
+    color: #000;
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    gap: 6px;
+}
+
+.menu ul li a i {
+    font-size: 1.2em;
+}
+
+.user-info-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.user-info {
+    margin-bottom: 10px; /* Space between the content and the underline */
+}
+
+.user-info span {
+    display: block;
+    margin-bottom: 5px; /* Space between the spans */
+}
+
+.underline {
+    width: 75%;
+    height: 1px; /* Height of the underline */
+    background-color: black; /* Color of the underline */
+}
+
+
+  </style>
+
+
+  <body>
+    <!--  Body Wrapper -->
+
+    <!-- add patient popup -->
+    <div
+      class="modal fade bd-example-modal-lg"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="myLargeModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Patient</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post" id="patientform" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <h5 class="modal-title">Basic Info</h5>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group col-md-2">
+                  <label for="registrationId">Registration Id</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="registrationId"
+                    name="registration_id"
+                    placeholder="Reg id"
+                  />
+                </div>
+                <div class="form-group col-md-2">
+                  <label for="title">Title</label>
+                  <select id="title" name="title" class="form-control">
+                    <option selected>Mr</option>
+                    <option>Mrs</option>
+                    <option>Ms</option>
+                    <option>Dr</option>
+                  </select>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="firstName">First Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="firstName"
+                    name="firstname_patient_name"
+                    placeholder="First Name"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="lastName">Last Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="lastName"
+                    name="secondname_patient_name"
+                    placeholder="Last Name"
+                  />
+                </div>
+                <div class="form-group col-md-2">
+                  <label for="recNo">Rec No</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="recNo"
+                    name="rec_no"
+                    placeholder="Rec No"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-3">
+                  <label for="address">Address</label>
+                  <textarea
+                    class="form-control"
+                    id="address"
+                    name="address"
+                    placeholder="Address"
+                  ></textarea>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="locality">Locality</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="locality"
+                    name="locality"
+                    placeholder="Locality"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="city">City</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="city"
+                    name="city"
+                    placeholder="City"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="State">State</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="State"
+                    name="state"
+                    placeholder="State"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-3">
+                  <label for="age">Age</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="age"
+                    name="age"
+                    placeholder="Age"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="mobile">Mobile No</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="mobile"
+                    name="mob_no"
+                    placeholder="Mobile No"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="email">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    placeholder="Email"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="dob">Date of Birth</label>
+                  <input type="date" class="form-control" id="dob" name="dob" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-3">
+                  <label for="gender">Gender</label>
+                  <select id="gender" name="gender" class="form-control">
+                    <option selected>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="guardianName">Guardian Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="guardianName"
+                    name="guardian_name"
+                    placeholder="Guardian Name"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="opNumber">OP Number</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="opNumber"
+                    name="op_number"
+                    placeholder="OP Number"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="passportNumber">Passport Number</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="passportNumber"
+                    name="passport_number"
+                    placeholder="Passport Number"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-3">
+                  <label for="dischargeDate">Discharge Date</label>
+                  <input type="date" class="form-control" id="dischargeDate"  name="discharge_date"/>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="phonenumber">Phone Number</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="phonenumber"
+                    name="second_phone_number"
+                    placeholder="Phone Number"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="country">Country</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="country"
+                    name="country"
+                    placeholder="Country"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="zip">Zip</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="zip"
+                    name="zip"
+                    placeholder="Zip"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <h5 class="modal-title">Medical History</h5>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-3">
+                  <label for="Blood">Blood Group</label>
+                  <select id="bloodgroup" name="bloodgroup" class="form-control">
+                    <option selected>A+</option>
+                    <option>B+</option>
+                    <option>O+</option>
+                    <option>AB+</option>
+                    <option>A-</option>
+                    <option>B-</option>
+                    <option>O-</option>
+                    <option>AB-</option>
+                  </select>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="Medical">Medical History</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="Medicalhistory"
+                    name="Medicalhistory"
+                    placeholder="Medical History"
+                  />
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="Blood">Blood Group</label>
+                  <select id="bloodgroup" name="bloodgroup" class="form-control">
+                    <option selected>AA</option>
+                    <option>AS</option>
+                    <option>AC</option>
+                    <option>SS</option>
+                    <option>SC</option>
+                  </select>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="remarks">Patient remarks</label>
+                  <textarea
+                    type="text"
+                    class="form-control"
+                    id="remarks"
+                    name="remarks"
+                    placeholder="Patient remarks"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="condtions">Medical conditions</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="dischargeDate"
+                    name="discharge_date"
+                    placeholder="Medical conditions"
+                  />
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="Group">Patiend Group</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="group"
+                    name="patient_group"
+                    placeholder="patiend group"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="fee">Consultation fee</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="fee"
+                    name="fee"
+                    placeholder="Consultation fee"
+                  />
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="payment">Payment Type</label>
+                  <select class="form-control" id="payment"  name="payment">
+                    <option value="cash">Cash</option>
+                    <option value="insurance">Insurance</option>
+                    <option value="card">Card</option>
+                    <option value="upi">UPI</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="conditions">Patient under any medication</label>
+                  <select class="form-control" id="conditions" name="conditions">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="pregnant">Are you pregnant</label>
+                  <select class="form-control" id="pregnant" name="pregnant">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <h5 class="modal-title">Other Info</h5>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-3">
+                  <label for="referredBy">Referred By</label>
+                  <select class="form-control" id="referredBy" name="referredBy">
+                    <option value="nameBoard">Name Board</option>
+                    <option value="online">Online</option>
+                    <option value="oldPatient">Old Patient</option>
+                    <option value="insurance">Insurance</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-md-3">
+                  <label for="occupation">Occupation</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="occupation"
+                    name="occupation"
+                    placeholder="Occupation"
+                  />
+                </div>
+
+                <div class="form-group col-md-3">
+                  <label for="specialization">Specialization</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="specialization"
+                    name="specialization"
+                    placeholder="Specialization"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-3">
+                  <label for="photo">Photo</label>
+                  <div class="photo-selector">
+                    <input type="file" id="photo" name="photo" accept="image/*">
+                </div>
+              </div>
+                <div class="form-group col-md-3">
+
+                <div class="photo-display" id="photoDisplay">
+                    <img id="selectedPhoto" src="" alt="Selected Photo" style="display: none;">
+                </div>
+              </div>
+                </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="Doctor">Select Doctor</label>
+                  <select class="form-control" id="doctor" name="doctor">
+                    {% for i in doctor_list %}
+                    <option value="{{i.id}}">{{i.first_name}}</option>
+                    {% endfor %}
+                  </select>
+                  <!-- <input
+                    type="text"
+                    class="form-control"
+                    id="doctor"
+                    name="doctor"
+                    placeholder="Doctor"
+                  /> -->
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="Doctor">Register method</label>
+                  <select class="form-control" id="register_method" name="register_method">
+                    <option value="online">Online</option>
+                    <option value="offline">Offline</option>
+                    \
+                  </select>
+                </div>
+              </div>
+              <div class="alert alert-danger" role="alert" id="validation-messages" style="display: none;"></div>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    </div>
+
+    <!-- ----------------- -->
+
+    <div
+      class="page-wrapper"
+      id="main-wrapper"
+      data-layout="vertical"
+      data-navbarbg="skin6"
+      data-sidebartype="full"
+      data-sidebar-position="fixed"
+      data-header-position="fixed"
+      style="background-color: aliceblue"
+    >
+      <!-- Sidebar Start -->
+      <aside class="left-sidebar">
+        <!-- Sidebar scroll-->
+        <div>
+          <div
+            class="brand-logo d-flex align-items-center justify-content-between"
+          >
+            <a href="/" class="text-nowrap logo-img">
+
+                 {% if user.photo %}
+                 <img src="{{user.photo.url}}" alt="." style="border-radius: 36rem; width: 100px; height: 100px;margin-left: 60%;margin-top: 17%;">
+                 {% else %}
+                 <img src="https://i.postimg.cc/BvNYhMHS/user-img.jpg" alt="." style="border-radius: 36rem; width: 100px; height: 100px;margin-left: 60%;margin-top: 17%;">
+                {% endif %}
+            </a>
+
+
+            <div
+              class="close-btn d-xl-none d-block sidebartoggler cursor-pointer"
+              id="sidebarCollapse"
+            >
+              <i class="ti ti-x fs-8"></i>
+            </div>
+          </div>
+
+          <div class="user-info-container">
+            <div class="user-info">
+                <span style="color: #662F8D;"><b>{{user.first_name}}</b></span>
+                <span style="color: #000;">{{user.designation}}</span>
+            </div>
+            <div class="underline"></div>
+        </div>
+
+          <!-- Sidebar navigation-->
+          <nav class="sidebar-nav scroll-sidebar" data-simplebar="" style="padding:0">
+            <ul id="sidebarnav" style="padding:0;text-align: center;margin-left: 11%;">
+              <li class="nav-small-cap">
+                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                {% comment %} <span class="hide-menu">Home</span> {% endcomment %}
+              </li>
+              <li class="sidebar-item">
+                <a
+                  class="sidebar-link"
+                  href="{% url 'dashboard' %}"
+                  aria-expanded="false"
+                >
+                  <span>
+                    <i class="ti ti-layout-dashboard"></i>
+                  </span>
+                  <span class="hide-menu">Dashboard</span>
+                </a>
+              </li>
+              {% if user.user_type == 'S' %}
+              <li class="sidebar-item">
+                <a
+                  href="#"
+                  class="sidebar-link"
+                  data-toggle="modal"
+                  data-target=".bd-example-modal-lg"
+                  aria-expanded="false"
+                >
+                  <span>
+                    <i class="ti ti-article"></i>
+                  </span>
+                  <span class="hide-menu">Add Patients</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a
+                  class="sidebar-link"
+                  href="{% url 'appointments' %}"
+                  aria-expanded="false"
+                >
+                  <span>
+                    <i class="ti ti-alert-circle"></i>
+                  </span>
+                  <span class="hide-menu">Appointments</span>
+                </a>
+              </li>
+
+              {% endif %}
+              <li class="sidebar-item">
+                <a
+                  class="sidebar-link"
+                  href="{% url 'patientdashboard' %}"
+                  aria-expanded="false"
+                >
+                  <span>
+                    <i class="ti ti-cards"></i>
+                  </span>
+                  <span class="hide-menu">Search Patient</span>
+                </a>
+              </li>
+              {% if user.user_type == 'S' %}
+              <li class="sidebar-item">
+                <a
+                  class="sidebar-link"
+                  href="{% url 'appointmentlist' %}"
+                  aria-expanded="false"
+                >
+                  <span>
+                    <i class="ti ti-file-description"></i>
+                  </span>
+                  <span class="hide-menu">Total Appointments</span>
+                </a>
+              </li>
+              {% elif user.user_type == 'D' %}
+              <li class="sidebar-item">
+                <a
+                  class="sidebar-link"
+                  href="{% url 'doctorappointment' %}"
+                  aria-expanded="false"
+                >
+                  <span>
+                    <i class="ti ti-file-description"></i>
+                  </span>
+                  <span class="hide-menu">Appointments(Doctor)</span>
+                </a>
+              </li>
+              {% endif %}
+              <li class="sidebar-item">
+                <a
+                  class="sidebar-link"
+                  href="{% url 'logout' %}"
+                  aria-expanded="false"
+                >
+                  <span>
+                    <i class="ti ti-file-description"></i>
+                  </span>
+                  <span class="hide-menu">Logout</span>
+                </a>
+              </li>
+
+            </ul>
+
+          </nav>
+          <!-- End Sidebar navigation -->
+        </div>
+        <!-- End Sidebar scroll-->
+      </aside>
+      <!--  Sidebar End -->
+      <!--  Main wrapper -->
+      <div class="body-wrapper">
+        <!--  Header Start -->
+        <header class="app-header">
+          <nav class="navbar navbar-expand-lg navbar-light">
+            <ul class="navbar-nav">
+              <li class="nav-item d-block d-xl-none">
+                <a
+                  class="nav-link sidebartoggler nav-icon-hover"
+                  id="headerCollapse"
+                  href="javascript:void(0)"
+                >
+                  <i class="ti ti-menu-2"></i>
+                </a>
+              </li>
+              <h3><b><span style="color: #662F8D;">Q1B</span></b> HEALTHCARE</h3>
+              <li class="nav-item">
+                <!-- <a class="nav-link nav-icon-hover" href="javascript:void(0)">
+                  <i class="ti ti-bell-ringing"></i>
+                  <div class="notification bg-primary rounded-circle"></div>
+                </a> -->
+                <!-- <span style="color: #ffc107;">{% if user.user_type == 'D' %}Doctor{% else %}Staff{% endif %}</span> -->
+              </li>
+            </ul>
+            <div
+              class="navbar-collapse justify-content-end px-0"
+              id="navbarNav"
+            >
+              <ul
+                class="navbar-nav flex-row ms-auto align-items-center justify-content-end"
+              >
+              <div class="profile">
+
+                <div class="img-box">
+                  {% if user.photo %}
+                  <img src="{{user.photo.url}}" alt=".">
+                  {% else %}
+                  <img src="https://i.postimg.cc/BvNYhMHS/user-img.jpg" alt=".">
+                  {% endif %}
+                </div>
+              </div>
+              <div class="menu">
+                <ul>
+                  <li><a href="#"><i class="ph-bold ph-user"></i>&nbsp;Profile</a></li>
+                  <!-- <li><a href="#"><i class="ph-bold ph-envelope-simple"></i>&nbsp;Inbox</a></li>
+                  <li><a href="#"><i class="ph-bold ph-gear-six"></i>&nbsp;Settings</a></li>
+                  <li><a href="#"><i class="ph-bold ph-question"></i>&nbsp;Help</a></li> -->
+                  <li><a href="{% url 'logout' %}"><i class="ph-bold ph-sign-out"></i>&nbsp;Logout</a></li>
+                </ul>
+              </div>
+              </ul>
+            </div>
+          </nav>
+        </header>
+
+        
+
+        {% comment %} extent {% endcomment %} {% block content %} {% endblock %}
+      </div>
+    </div>
+    <script src="../assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/sidebarmenu.js"></script>
+    <script src="../assets/js/app.min.js"></script>
+    <script src="../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+    <script src="../assets/libs/simplebar/dist/simplebar.js"></script>
+    <script src="../assets/js/dashboard.js"></script>
+  </body>
+</html>
+
+
+
+<script src="{% static 'assets/js/plugins.js' %}"></script>
+
+<!-- <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.min.js"></script> -->
+
+<!-- <script>
+
+  function patientValidation(){
+    if ($('#registrationId').val() == '') {
+        $('#validation-messages').show();
+        $('#validation-messages').html("Please Enter Registration Id");
+        error = true;
+    }
+  }
+
+
+
+  $('#patientform').submit(function(event) {
+        event.preventDefault();
+        var form = $(this);
+        console.log("form",form)
+
+        if (patientValidation()) {
+          $.ajax({
+              url: '/submit_patient',
+              type: 'POST',
+              data: form.serialize(),
+              success: function(response) {
+                console.log("=========",response)
+                alert("opp")
+              }
+          });
+        }
+    });
+</script> -->
+
+<script>
+   console.log("Starting to fetch chart data...");
+        fetch('/patient-data/')
+            .then(response => {
+                console.log("Received response from /patient-data/", response);
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Data received:", data);
+                const ctx = document.getElementById('patientChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar', // You can change this to 'line', 'pie', etc.
+                    data: data,
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error("There was a problem with the fetch operation:", error);
+            });
+
+
+            console.log("Starting to fetch daily chart data...");
+fetch('/patient-count-per-day/')
+    .then(response => {
+        console.log("Received response from /patient-count-per-day/", response);
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        return response.json();
+    })
+    .then(data => {
+        const ctx = document.getElementById('dailyChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.labels,
+                datasets: data.datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    })
+    .catch(error => {
+        console.error("There was a problem with the fetch operation:", error);
+    });
+
+
+
+            let profile = document.querySelector('.profile');
+let menu = document.querySelector('.menu');
+
+profile.onclick = function () {
+    menu.classList.toggle('active');
+}
+
+</script>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q1B Healthcare</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f6f9fc;
+        }
+
+        .account-block {
+            background-image: url(https://bootdey.com/img/Content/bg1.jpg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 100vh; /* Adjust height as needed */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #fff;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            max-width: 400px; /* Adjust as needed */
+            margin: 0 auto; /* Center align */
+        }
+
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .text-theme {
+            color: #5369f8 !important;
+        }
+
+        .btn-theme {
+            background-color: #5369f8;
+            border-color: #5369f8;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="account-block">
+    <div class="overlay"></div>
+    <div class="content">
+        <div class="company-name">
+            <span class="maroon">Q</span>1<span class="maroon">B</span> HEALTHCARE
+        </div>
+        <h3 class="h4 font-weight-bold text-theme">Login</h3>
+        <h6 class="h5 mb-0">Welcome back!</h6>
+        <p class="text-muted mt-2 mb-4">Enter your email address and password to access admin panel.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="exampleInputEmail1">Email address</label>
+                <input type="email" name="email" class="form-control" id="exampleInputEmail1">
+            </div>
+            <div class="form-group mb-4">
+                <label for="exampleInputPassword1">Password</label>
+                <input type="password" name="password" class="form-control" id="exampleInputPassword1">
+            </div>
+            <button type="submit" class="btn btn-theme btn-block">Login</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

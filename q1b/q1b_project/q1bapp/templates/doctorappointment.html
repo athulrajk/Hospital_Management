@@ -1,0 +1,181 @@
+{% extends 'base.html' %} {% block content %}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css"
+/>
+<script
+  type="text/javascript"
+  charset="utf8"
+  src="https://code.jquery.com/jquery-3.5.1.js"
+></script>
+<script
+  type="text/javascript"
+  charset="utf8"
+  src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"
+></script>
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  rel="stylesheet"
+/>
+<style>
+  .content-table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    min-width: 400px;
+    border-radius: 5px 5px 0 0;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .content-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+    font-weight: bold;
+  }
+
+  .content-table th,
+  .content-table td {
+    padding: 12px 15px;
+  }
+
+  .content-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+  }
+
+  .content-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+  }
+
+  .content-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+  }
+
+  .content-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+  }
+  .user-info-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    padding: 5px;
+    background-color: #fff; /* Change this to your desired color */
+    margin-left: 3px;
+  }
+
+  element {
+  }
+  .dataTables_wrapper .dataTables_length select {
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    padding: 5px;
+    background-color: #fff;
+    padding: 4px;
+  }
+
+  .modal-xl {
+    max-width: 60%;
+  }
+</style>
+<div class="container-fluid">
+  <div class="row">
+    <div class="row">
+      <div class="col-lg-4 d-flex align-items-stretch">
+        <div class="card w-100" style="max-height: 390px">
+          <div class="card-body p-4">
+            <div class="mb-4">
+              <h5 class="card-title fw-semibold">Next Patient</h5>
+
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <img
+                      src="{{patient.photo.url}}"
+                      class="img-fluid rounded-circle"
+                      alt="Patient Photo"
+                    />
+                  </div>
+                  <div class="col-md-8">
+                    <h3>{{patient.firstname_patient_name}}</h3>
+                    <p class="card-text">
+                      <strong>Date of Birth:</strong> {{patient.dob}}<br />
+                      <strong>Gender:</strong> {{patient.gender}}<br />
+                      <strong>Registration Id:</strong>
+                      {{patient.registration_id}}<br />
+                      <strong>Registration Date:</strong>
+                      {{patient.created_at}}<br />
+                    </p>
+                  </div>
+                </div>
+                <hr />
+                <h5 class="card-title">Patient History</h5>
+                <p class="card-text">{{patient.Medicalhistory}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8 d-flex align-items-stretch">
+        <div class="card w-100">
+          <div class="card-body p-4">
+            <h5 class="card-title fw-semibold mb-4">Recent Patients List</h5>
+            <div class="table-responsive">
+              <table id="patientTabledoc" class="content-table">
+                <thead>
+                  <tr>
+                    <th>Register Id</th>
+                    <th>Name</th>
+                    <th>Doctor Name</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for patient in patient_values %}
+                  <tr>
+                    <td>{{ patient.registration_id }}</td>
+                    <td>{{ patient.firstname_patient_name }}</td>
+                    <td>{{ patient.doctor }}</td>
+                    <td>{{ patient.created_at }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $(document).ready(function () {
+    //Only needed for the filename of export files.
+    //Normally set in the title tag of your page.
+    document.title = "Simple DataTable";
+    // DataTable initialisation
+    $("#patientTabledoc").DataTable({
+      dom: '<"dt-buttons"Bf><"clear">lirtp',
+      paging: true,
+      autoWidth: true,
+      buttons: [
+        "colvis",
+        "copyHtml5",
+        "csvHtml5",
+        "excelHtml5",
+        "pdfHtml5",
+        "print",
+      ],
+    });
+  });
+</script>
+{% endblock %}

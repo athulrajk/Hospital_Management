@@ -1,0 +1,931 @@
+{% extends 'base.html' %} {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  @import url(https://unpkg.com/@webpixels/css@1.1.5/dist/index.css);
+
+  /* Bootstrap Icons */
+  @import url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.4.0/font/bootstrap-icons.min.css");
+
+
+  .btn-custom {
+        padding: 5px 10px; /* Adjust padding to reduce button size */
+        font-size: 14px; /* Adjust font size */
+        line-height: 1.5; /* Adjust line height */
+    }
+
+
+  #patientTabledashboard {
+    width: 100%;
+    border-collapse: collapse; /* Ensure borders collapse properly */
+  }
+  #patientTabledashboard th,
+  #patientTabledashboard td {
+    padding: 8px; /* Add padding for spacing */
+    text-align: left; /* Align text left within cells */
+  }
+  #patientTabledashboard th:first-child,
+  #patientTabledashboard td:first-child {
+    width: 50px; /* Adjust width for the first column (e.g., for images) */
+    text-align: center; /* Center align content */
+  }
+  /* Adjust width for other columns as needed */
+  #patientTabledashboard th:nth-child(2),
+  #patientTabledashboard td:nth-child(2),
+  #patientTabledashboard th:nth-child(3),
+  #patientTabledashboard td:nth-child(3),
+  #patientTabledashboard th:nth-child(4),
+  #patientTabledashboard td:nth-child(4),
+  #patientTabledashboard th:nth-child(5),
+  #patientTabledashboard td:nth-child(5),
+  #patientTabledashboard th:nth-child(6),
+  #patientTabledashboard td:nth-child(6),
+  #patientTabledashboard th:nth-child(7),
+  #patientTabledashboard td:nth-child(7) {
+    width: 150px; /* Adjust width for other columns */
+  }
+
+  .card-list {
+    @include clear();
+    width: 100%;
+  }
+
+  .card {
+    border-radius: 8px;
+    color: white;
+    padding: 10px;
+    position: relative;
+
+    .zmdi {
+      color: white;
+      font-size: 28px;
+      opacity: 0.3;
+      position: absolute;
+      right: 13px;
+      top: 13px;
+    }
+
+    .stat {
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      font-size: 8px;
+      margin-top: 25px;
+      padding: 10px 10px 0;
+      text-transform: uppercase;
+    }
+
+    .title {
+      display: inline-block;
+      font-size: 8px;
+      padding: 10px 10px 0;
+      text-transform: uppercase;
+    }
+
+    .value {
+      font-size: 28px;
+      padding: 0 10px;
+    }
+
+    &.blue {
+      background-color: #2298f1;
+    }
+
+    &.green {
+      background-color: #66b92e;
+    }
+
+    &.orange {
+      background-color: #da932c;
+    }
+
+    &.red {
+      background-color: #d65b4a;
+    }
+  }
+
+  .projects {
+    background-color: $dark-text;
+    border: 1px solid $light-bg;
+    overflow-x: auto;
+    width: 100%;
+
+    &-inner {
+      border-radius: 4px;
+    }
+  }
+
+  .projects-header {
+    color: white;
+    padding: 22px;
+
+    .count,
+    .title {
+      display: inline-block;
+    }
+
+    .count {
+      color: #738297;
+    }
+
+    .zmdi {
+      cursor: pointer;
+      float: right;
+      font-size: 16px;
+      margin: 5px 0;
+    }
+
+    .title {
+      font-size: 21px;
+
+      + .count {
+        margin-left: 5px;
+      }
+    }
+  }
+
+  .content-table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    min-width: 400px;
+    border-radius: 5px 5px 0 0;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .content-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+    font-weight: bold;
+  }
+
+  .content-table th,
+  .content-table td {
+    padding: 12px 15px;
+  }
+
+  .content-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+  }
+
+  .content-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+  }
+
+  .content-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+  }
+
+  .content-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+  }
+
+  .dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    padding: 5px;
+    background-color: #fff; /* Change this to your desired color */
+    margin-left: 3px;
+  }
+
+  element {
+  }
+  .dataTables_wrapper .dataTables_length select {
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    padding: 5px;
+    background-color: #fff;
+    padding: 4px;
+  }
+
+  .modal-xl {
+    max-width: 60%;
+  }
+  .filter-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .filter-container span {
+    margin-right: 10px;
+  }
+
+  .chart-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .chart-box {
+    width: 45%;
+    margin: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  canvas {
+    border-radius: 8px;
+  }
+
+  .panel-wrapper .panel-head {
+    background-color: #00a5f2;
+    color: #fff;
+    padding: 10px 10px;
+    border: 1px solid #00a5f2;
+  }
+  .panel-wrapper .panel-body {
+    padding: 20px 10px;
+    font-size: 80%;
+  }
+</style>
+
+<div class="container-fluid">
+  {% comment %}
+  <div class="row">
+    <div class="col-sm-6 col-xl-3">
+      <div class="card overflow-hidden rounded-2">
+        <div class="position-relative">
+          <a href="javascript:void(0)"
+            ><img
+              src="../assets/images/products/s4.jpg"
+              class="card-img-top rounded-0"
+              alt="..."
+          /></a>
+          <a
+            href="javascript:void(0)"
+            class="bg-primary rounded-circle p-2 text-white d-inline-flex position-absolute bottom-0 end-0 mb-n3 me-3"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            data-bs-title="Add To Cart"
+            ><i class="ti ti-basket fs-4"></i
+          ></a>
+        </div>
+        <div class="card-body pt-3 p-4">
+          <h6 class="fw-semibold fs-4">Boat Headphone</h6>
+          <div class="d-flex align-items-center justify-content-between">
+            <h6 class="fw-semibold fs-4 mb-0">
+              $50
+              <span class="ms-2 fw-normal text-muted fs-3"><del>$65</del></span>
+            </h6>
+            <ul class="list-unstyled d-flex align-items-center mb-0">
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="card overflow-hidden rounded-2">
+        <div class="position-relative">
+          <a href="javascript:void(0)"
+            ><img
+              src="../assets/images/products/s5.jpg"
+              class="card-img-top rounded-0"
+              alt="..."
+          /></a>
+          <a
+            href="javascript:void(0)"
+            class="bg-primary rounded-circle p-2 text-white d-inline-flex position-absolute bottom-0 end-0 mb-n3 me-3"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            data-bs-title="Add To Cart"
+            ><i class="ti ti-basket fs-4"></i
+          ></a>
+        </div>
+        <div class="card-body pt-3 p-4">
+          <h6 class="fw-semibold fs-4">MacBook Air Pro</h6>
+          <div class="d-flex align-items-center justify-content-between">
+            <h6 class="fw-semibold fs-4 mb-0">
+              $650
+              <span class="ms-2 fw-normal text-muted fs-3"
+                ><del>$900</del></span
+              >
+            </h6>
+            <ul class="list-unstyled d-flex align-items-center mb-0">
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="card overflow-hidden rounded-2">
+        <div class="position-relative">
+          <a href="javascript:void(0)"
+            ><img
+              src="../assets/images/products/s7.jpg"
+              class="card-img-top rounded-0"
+              alt="..."
+          /></a>
+          <a
+            href="javascript:void(0)"
+            class="bg-primary rounded-circle p-2 text-white d-inline-flex position-absolute bottom-0 end-0 mb-n3 me-3"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            data-bs-title="Add To Cart"
+            ><i class="ti ti-basket fs-4"></i
+          ></a>
+        </div>
+        <div class="card-body pt-3 p-4">
+          <h6 class="fw-semibold fs-4">Red Valvet Dress</h6>
+          <div class="d-flex align-items-center justify-content-between">
+            <h6 class="fw-semibold fs-4 mb-0">
+              $150
+              <span class="ms-2 fw-normal text-muted fs-3"
+                ><del>$200</del></span
+              >
+            </h6>
+            <ul class="list-unstyled d-flex align-items-center mb-0">
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="card overflow-hidden rounded-2">
+        <div class="position-relative">
+          <a href="javascript:void(0)"
+            ><img
+              src="../assets/images/products/s11.jpg"
+              class="card-img-top rounded-0"
+              alt="..."
+          /></a>
+          <a
+            href="javascript:void(0)"
+            class="bg-primary rounded-circle p-2 text-white d-inline-flex position-absolute bottom-0 end-0 mb-n3 me-3"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            data-bs-title="Add To Cart"
+            ><i class="ti ti-basket fs-4"></i
+          ></a>
+        </div>
+        <div class="card-body pt-3 p-4">
+          <h6 class="fw-semibold fs-4">Cute Soft Teddybear</h6>
+          <div class="d-flex align-items-center justify-content-between">
+            <h6 class="fw-semibold fs-4 mb-0">
+              $285
+              <span class="ms-2 fw-normal text-muted fs-3"
+                ><del>$345</del></span
+              >
+            </h6>
+            <ul class="list-unstyled d-flex align-items-center mb-0">
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="me-1" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+              <li>
+                <a class="" href="javascript:void(0)"
+                  ><i class="ti ti-star text-warning"></i
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endcomment %}
+
+  <div class="container-fluid">
+    <div class="row g-6 mb-6">
+      <!-- <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card blue">
+          <div class="title">Total Patient</div>
+          <i class="zmdi zmdi-upload"></i>
+          <div class="value">{{total_pat}}</div>
+        </div>
+      </div> -->
+      <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card shadow border-0">
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <span class="h6 font-semibold text-muted text-sm d-block mb-2"
+                  >Today's Patient Count</span
+                >
+                <span class="h3 font-bold mb-0">{{today_appointments}}</span>
+              </div>
+              <div class="col-auto" style="width: 50px">
+                <div
+                  class="icon icon-shape bg-tertiary text-white text-lg rounded-circle"
+                >
+                  <i class="bi bi-person-circle"></i>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 mb-0 text-sm">
+              <span class="badge badge-pill bg-soft-success text-success me-2">
+                <i class=""></i>2024
+              </span>
+              <span class="text-nowrap text-xs text-muted"
+                >Till last month</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card shadow border-0">
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <span class="h6 font-semibold text-muted text-sm d-block mb-2"
+                  >Open Appointments</span
+                >
+                <span class="h3 font-bold mb-0">{{open_app}}</span>
+              </div>
+              <div class="col-auto" style="width: 50px">
+                <div
+                  class="icon icon-shape bg-tertiary text-white text-lg rounded-circle"
+                >
+                  <i class="bi bi-file-earmark-richtext"></i>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 mb-0 text-sm">
+              <span class="badge badge-pill bg-soft-success text-success me-2">
+                <i class=""></i>2024
+              </span>
+              <span class="text-nowrap text-xs text-muted"
+                >Till last month</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card shadow border-0">
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <span class="h6 font-semibold text-muted text-sm d-block mb-2"
+                  >Closed Appointments</span
+                >
+                <span class="h3 font-bold mb-0">{{close_app}}</span>
+              </div>
+              <div class="col-auto" style="width: 50px">
+                <div
+                  class="icon icon-shape bg-tertiary text-white text-lg rounded-circle"
+                >
+                  <i class="bi bi-file-earmark-medical-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 mb-0 text-sm">
+              <span class="badge badge-pill bg-soft-success text-success me-2">
+                <i class=""></i>2024
+              </span>
+              <span class="text-nowrap text-xs text-muted"
+                >Till last month</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card shadow border-0">
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <span class="h6 font-semibold text-muted text-sm d-block mb-2"
+                  >Total Patient</span
+                >
+                <span class="h3 font-bold mb-0">{{total_pat}}</span>
+              </div>
+              <div class="col-auto" style="width: 50px">
+                <div
+                  class="icon icon-shape bg-tertiary text-white text-lg rounded-circle"
+                >
+                  <i class="bi bi-person-lines-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 mb-0 text-sm">
+              <span class="badge badge-pill bg-soft-success text-success me-2">
+                <i class=""></i>2024
+              </span>
+              <span class="text-nowrap text-xs text-muted"
+                >Till last month</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card green">
+          <div class="title">Open Appointments</div>
+          <i class="zmdi zmdi-upload"></i>
+          <div class="value">{{open_app}}</div>
+        </div>
+      </div> -->
+      <!-- <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card orange">
+          <div class="title">Today's Patient Count</div>
+          <i class="zmdi zmdi-download"></i>
+          <div class="value">{{today_appointments}}</div>
+        </div>
+      </div> -->
+      <!-- <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card red">
+          <div class="title">Closed Appointments</div>
+          <i class="zmdi zmdi-download"></i>
+          <div class="value">{{close_app}}</div>
+        </div>
+      </div> -->
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-4 d-flex align-items-strech">
+      <div class="card w-100">
+        <div class="card-body">
+          <div
+            class="d-sm-flex d-block align-items-center justify-content-between mb-9"
+          >
+            <div class="mb-3 mb-sm-0">
+              <h5 class="card-title fw-semibold">Patient Graph By Count</h5>
+            </div>
+          </div>
+          <!-- <div id="chart"></div> -->
+          <!-- <canvas id="patientChart" width="400" height="200"></canvas> -->
+          <canvas id="dailyChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- two side bar -->
+    <div class="col-lg-4">
+      <div class="row">
+        <div class="col-lg-12">
+          <h5>Patients</h5>
+          <br />
+          <div class="card">
+            <div class="card-body">
+              <div class="row alig n-items-start">
+                <div class="col-4">
+                  <div class="d-flex justify-content-end">
+                    <div
+                      class="text-white rounded-circle p-6 d-flex align-items-center justify-content-center"
+                      style="background-color: #662f8d"
+                    >
+                      <i class="ti ti-user-plus fs-6"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-8" style="margin-bottom: 14px">
+                  <h5 class="card-title mb-0 fw-semibold">
+                    {{new_patients}}<span style="float: inline-end"
+                      >{{recent_patients_percentage|floatformat:1}}%</span
+                    >
+                  </h5>
+                  <span>New Patients</span>
+                  <h4 class="fw-semibold mb-3"></h4>
+                  <div class="d-flex align-items-center pb-1"></div>
+                </div>
+
+                <div class="col-4">
+                  <div class="d-flex justify-content-end">
+                    <div
+                      class="text-white rounded-circle p-6 d-flex align-items-center justify-content-center"
+                      style="background-color: #00a5f2"
+                    >
+                      <i class="ti ti-user fs-6"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-8">
+                  <h5 class="card-title mb-0 fw-semibold">
+                    {{older_patients}}<span style="float: inline-end"
+                      >{{older_patients_percentage|floatformat:1}}%</span
+                    >
+                  </h5>
+                  <span>Old Patients</span>
+                  <div class="d-flex align-items-center pb-1"></div>
+                </div>
+              </div>
+            </div>
+            <div id="earning"></div>
+          </div>
+        </div>
+
+        <div class="col-lg-12">
+          <h5>Gender</h5>
+          <br />
+          <div class="card">
+            <div class="card-body">
+              <div class="row alig n-items-start">
+                <div class="col-4">
+                  <div class="d-flex justify-content-end">
+                    <div
+                      class="text-white rounded-circle p-6 d-flex align-items-center justify-content-center"
+                      style="background-color: #662f8d"
+                    >
+                      <i class="ti ti-plus fs-6"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-8" style="margin-bottom: 14px">
+                  <h5 class="card-title mb-0 fw-semibold">
+                    {{male_count}}<span style="float: inline-end"
+                      >{{male_percentage|floatformat:1}}%</span
+                    >
+                  </h5>
+                  <span>Male</span>
+                  <h4 class="fw-semibold mb-3"></h4>
+                  <div class="d-flex align-items-center pb-1"></div>
+                </div>
+
+                <div class="col-4">
+                  <div class="d-flex justify-content-end">
+                    <div
+                      class="text-white rounded-circle p-6 d-flex align-items-center justify-content-center"
+                      style="background-color: #00a5f2"
+                    >
+                      <i class="ti ti-plus fs-6"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-8">
+                  <h5 class="card-title mb-0 fw-semibold">
+                    {{female_count}}<span style="float: inline-end"
+                      >{{female_percentage|floatformat:1}}%</span
+                    >
+                  </h5>
+                  <span>Female</span>
+                  <div class="d-flex align-items-center pb-1"></div>
+                </div>
+              </div>
+            </div>
+            <div id="earning"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- --------------------- -->
+    {% if recent_patient %}
+    <div class="col-lg-4 d-flex align-items-strech">
+      <div class="card w-100">
+        <div class="card-body">
+          <div
+            class="d-sm-flex d-block align-items-center justify-content-between mb-9"
+          >
+            <div class="mb-3 mb-sm-0">
+              <h5 class="card-title fw-semibold">Next Patient Details</h5>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <!-- Image column -->
+            <div class="col-auto">
+              <a href="javascript:void(0)">
+                {% if recent_patient.photo %}
+                <img
+                  src="{{recent_patient.photo.url}}"
+                  class="rounded-circle"
+                  alt="Patient Photo"
+                  style="width: 50px; height: 50px"
+                />
+
+                {% else %}
+                <img
+                  src="https://i.postimg.cc/BvNYhMHS/user-img.jpg"
+                  class="rounded-circle"
+                  alt="Patient Photo"
+                  style="width: 50px; height: 50px"
+                />
+                {% endif %}
+              </a>
+            </div>
+            <!-- Name and Gender column -->
+            <div class="col">
+              <p class="mb-0"><b>{{recent_patient.firstname_patient_name}}</b></p>
+              <p class="text-muted mb-0"><b>{{recent_patient.rec_no}}</b></p>
+            </div>
+            <div class="col">
+              <p class="mb-0"><b>Patient ID</b></p>
+              <p class="text-muted mb-0">{{recent_patient.registration_id}}</p>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <p class="mb-0"><b>D.O.B</b></p>
+              <p class="text-muted mb-0">{{recent_patient.dob}}</p>
+            </div>
+            <div class="col">
+              <p class="mb-0"><b>Gender</b></p>
+              <p class="text-muted mb-0">{{recent_patient.gender}}</p>
+            </div>
+            <div class="col">
+              <p class="mb-0"><b>Age</b></p>
+              <p class="text-muted mb-0">{{recent_patient.age}}</p>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <p class="mb-0"><b>Last Appointment Date</b></p>
+              <p class="text-muted mb-0">{{recent_patient.discharge_date}}</p>
+            </div>
+            <div class="col">
+              <p class="mb-0"><b>Register Date</b></p>
+              <p class="text-muted mb-0">{{recent_patient.created_at}}</p>
+            </div>
+
+          </div>
+          <span><b>Patient History</b></span><br>
+          <div class="row mb-3">
+            <div class="col">
+              {{recent_patient.Medicalhistory}}
+            </div>
+
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <button type="button" class="btn btn-light btn-custom">{{recent_patient.mob_no}}</button>
+            </div>
+            <div class="col">
+              <!-- <button type="button" class="btn btn-link btn-custom">Info</button> -->
+            </div>
+            <div class="col">
+              <!-- <button type="button" class="btn btn-dark btn-custom">Warning</button> -->
+            </div>
+            
+          </div>
+
+          <!-- <div id="chart"></div> -->
+          <!-- <canvas id="patientChart" width="400" height="200"></canvas> -->
+          <!-- <canvas id="dailyChart" width="400" height="400"></canvas> -->
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <!-- ----------------- -->
+
+    <!-- <div class="col-lg-6 d-flex align-items-strech">
+      <div class="card w-100">
+        <div class="card-body">
+          <div
+            class="d-sm-flex d-block align-items-center justify-content-between mb-9"
+          >
+            <div class="mb-3 mb-sm-0">
+              <h5 class="card-title fw-semibold">Patient Graph By Count</h5>
+            </div>
+
+          </div>
+                    <!-- <canvas id="patientChart" width="400" height="200"></canvas> -->
+
+    <div class="panel-wrapper">
+      <div class="panel-head">Recent Patients</div>
+
+      <table id="patientTabledashboard" class="content-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Register Id</th>
+            <th>Name</th>
+            <th>Doctor Name</th>
+            <th>Referral</th>
+            <th>Start Date</th>
+            <th>Register Method</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for patient in rece_pat %}
+          <tr>
+            <td>
+              <a href="javascript:void(0)">
+                {% if patient.photo %}
+                <img
+                  src="{{ patient.photo.url }}"
+                  class=""
+                  alt="."
+                  style="border-radius: 36rem; width: 40px; height: 40px"
+                />
+                {% else %}
+                <img
+                  src="https://i.postimg.cc/BvNYhMHS/user-img.jpg"
+                  class=""
+                  alt="."
+                  style="border-radius: 36rem; width: 40px; height: 40px"
+                />
+                {% endif %}
+              </a>
+            </td>
+            <td>{{ patient.registration_id }}</td>
+            <td>{{ patient.firstname_patient_name }}</td>
+            <td>{{ patient.doctor }}</td>
+            <td>{{ patient.referredBy }}</td>
+            <td>{{ patient.created_at }}</td>
+            <td>{{ patient.register_method }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel-wrapper">
+      <div class="panel-head">Latest Medical Insights and Updates</div>
+      <div class="panel-body">
+        Explore new treatments, research findings, and health tips directly from
+        our curated news feed.
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

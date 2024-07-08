@@ -1,0 +1,1069 @@
+{% extends 'base.html' %} {% block content %} 
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+<style>
+    .content-table {
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-size: 0.9em;
+  min-width: 400px;
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.content-table thead tr {
+  background-color: #009879;
+  color: #ffffff;
+  text-align: left;
+  font-weight: bold;
+}
+
+.content-table th,
+.content-table td {
+  padding: 12px 15px;
+}
+
+.content-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+.content-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+.content-table tbody tr:last-of-type {
+  border-bottom: 2px solid #009879;
+}
+
+.content-table tbody tr.active-row {
+  font-weight: bold;
+  color: #009879;
+}
+
+
+.dataTables_wrapper .dataTables_filter input {
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  padding: 5px;
+  background-color: #fff; /* Change this to your desired color */
+  margin-left: 3px;
+}
+
+element {
+}
+.dataTables_wrapper .dataTables_length select {
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  padding: 5px;
+  background-color: #fff;
+  padding: 4px;
+
+}
+
+      .modal-xl {
+        max-width: 60%;
+      }
+              .filter-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .filter-container span {
+            margin-right: 10px;
+        }
+</style>
+
+
+    
+<div class="container-fluid">
+  <div class="filter-container">
+    <span>Register Method</span>
+    <select id="rgfilter" name="registermethod" class="form-select" aria-label="Default select example" style="width: 22%;background-color: #fff;">
+      <option value="">All</option>
+        <option value="online">Online</option>
+        <option value="offline">Offline</option>
+    </select>
+</div>
+    <div class="row">
+     
+        <table id="patientTable" class="content-table">
+            <thead>
+                <tr>
+                    <th>Register Id</th>
+                    <th>Name</th>
+                    <th>Doctor Name</th>
+                    <th>Referral</th>
+                    <th>Start Date</th>
+                    <th>Register Method</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patient %}
+                <tr>
+                    <td>{{ patient.registration_id }}</td>
+                    <td>{{ patient.firstname_patient_name }}</td>
+                    <td>{{ patient.doctor }}</td>
+                    <td>{{ patient.referredBy }}</td>
+                    <td>{{ patient.created_at }}</td>
+                    <td>{{ patient.register_method }}</td>
+                    <td>
+                      <a href="#" class="btn btn-link edit-btn text-dark" data-patient-id="{{ patient.id }}" data-toggle="modal" data-target="#editPatientModal">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    
+                  </td>
+                  <td> <button type="button" class="btn btn-link view-btn-patient text-dark" data-toggle="modal" data-target=".viewpatient" data-patient-id="{{ patient.id }}">
+                    <i class="fas fa-eye"></i>
+                </button>
+                
+                  </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+    </div>
+</div>
+
+<!-- patient edit -->
+<div class="modal fade" id="editPatientModal" tabindex="-1" role="dialog" aria-labelledby="editPatientModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document"> 
+      <div class="modal-content">
+          <form method="post" id="patientformupdate" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="modal-header">
+                  <h5 class="modal-title">Edit Patient Information</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" id="patientId" name="patient_id" value="{{ patient.id }}">
+                  <!-- Your form fields here -->
+                  
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <h5 class="modal-title">Basic Info</h5>
+                    </div>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group col-md-2">
+                      <label for="registrationId">Registration Id</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editregistrationId"
+                        name="registration_id"
+                        placeholder="Reg id"
+                      />
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label for="title">Title</label>
+                      <select id="edittitle" name="title" class="form-control">
+                        <option selected>Mr</option>
+                        <option>Mrs</option>
+                        <option>Ms</option>
+                        <option>Dr</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="firstName">First Name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editfirstName"
+                        name="firstname_patient_name"
+                        placeholder="First Name"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="lastName">Last Name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editlastName"
+                        name="secondname_patient_name"
+                        placeholder="Last Name"
+                      />
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label for="recNo">Rec No</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="editrecNo"
+                        name="rec_no"
+                        placeholder="Rec No"
+                      />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-3">
+                      <label for="address">Address</label>
+                      <textarea
+                        class="form-control"
+                        id="editaddress"
+                        name="address"
+                        placeholder="Address"
+                      ></textarea>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="locality">Locality</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editlocality"
+                        name="locality"
+                        placeholder="Locality"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="city">City</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editcity"
+                        name="city"
+                        placeholder="City"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="State">State</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editState"
+                        name="state"
+                        placeholder="State"
+                      />
+                    </div>
+                  </div>
+    
+                  <div class="form-row">
+                    <div class="form-group col-md-3">
+                      <label for="age">Age</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="editage"
+                        name="age"
+                        placeholder="Age"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="mobile">Mobile No</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="editmobile"
+                        name="mob_no"
+                        placeholder="Mobile No"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="email">Email</label>
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="editemail"
+                        name="email"
+                        placeholder="Email"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="dob">Date of Birth</label>
+                      <input type="date" class="form-control" id="editdob" name="dob" />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-3">
+                      <label for="gender">Gender</label>
+                      <select id="editgender" name="gender" class="form-control">
+                        <option selected>Male</option>
+                        <option>Female</option>
+                        <option>Other</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="guardianName">Guardian Name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editguardianName"
+                        name="guardian_name"
+                        placeholder="Guardian Name"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="opNumber">OP Number</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="editopNumber"
+                        name="op_number"
+                        placeholder="OP Number"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="passportNumber">Passport Number</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editpassportNumber"
+                        name="passport_number"
+                        placeholder="Passport Number"
+                      />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-3">
+                      <label for="dischargeDate">Discharge Date</label>
+                      <input type="date" class="form-control" id="editdischargeDate"  name="discharge_date"/>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="phonenumber">Phone Number</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="editphonenumber"
+                        name="second_phone_number"
+                        placeholder="Phone Number"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="country">Country</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editcountry"
+                        name="country"
+                        placeholder="Country"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="zip">Zip</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editzip"
+                        name="zip"
+                        placeholder="Zip"
+                      />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <h5 class="modal-title">Medical History</h5>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-3">
+                      <label for="Blood">Blood Group</label>
+                      <select id="editbloodgroup" name="bloodgroup" class="form-control">
+                        <option selected>A+</option>
+                        <option>B+</option>
+                        <option>O+</option>
+                        <option>AB+</option>
+                        <option>A-</option>
+                        <option>B-</option>
+                        <option>O-</option>
+                        <option>AB-</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="Medical">Medical History</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editMedicalhistory"
+                        name="Medicalhistory"
+                        placeholder="Medical History"
+                      />
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="Blood">Blood Group</label>
+                      <select id="editbloodgroup1" name="bloodgroup" class="form-control">
+                        <option selected>AA</option>
+                        <option>AS</option>
+                        <option>AC</option>
+                        <option>SS</option>
+                        <option>SC</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="remarks">Patient remarks</label>
+                      <textarea
+                        type="text"
+                        class="form-control"
+                        id="editremarks"
+                        name="remarks"
+                        placeholder="Patient remarks"
+                      ></textarea>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label for="condtions">Medical conditions</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editdischargeDate"
+                        name="discharge_date"
+                        placeholder="Medical conditions"
+                      />
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="Group">Patiend Group</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editgroup"
+                        name="patient_group"
+                        placeholder="patiend group"
+                      />
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label for="fee">Consultation fee</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="editfee"
+                        name="fee"
+                        placeholder="Consultation fee"
+                      />
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="payment">Payment Type</label>
+                      <select class="form-control" id="editpayment"  name="payment">
+                        <option value="cash">Cash</option>
+                        <option value="insurance">Insurance</option>
+                        <option value="card">Card</option>
+                        <option value="upi">UPI</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label for="conditions">Patient under any medication</label>
+                      <select class="form-control" id="editconditions" name="conditions">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="pregnant">Are you pregnant</label>
+                      <select class="form-control" id="editpregnant" name="pregnant">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                      </select>
+                    </div>
+                  </div>
+    
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <h5 class="modal-title">Other Info</h5>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-3">
+                      <label for="referredBy">Referred By</label>
+                      <select class="form-control" id="editreferredBy" name="referredBy">
+                        <option value="nameBoard">Name Board</option>
+                        <option value="online">Online</option>
+                        <option value="oldPatient">Old Patient</option>
+                        <option value="insurance">Insurance</option>
+                      </select>
+                    </div>
+    
+                    <div class="form-group col-md-3">
+                      <label for="occupation">Occupation</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editoccupation"
+                        name="occupation"
+                        placeholder="Occupation"
+                      />
+                    </div>
+    
+                    <div class="form-group col-md-3">
+                      <label for="specialization">Specialization</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editspecialization"
+                        name="specialization"
+                        placeholder="Specialization"
+                      />
+                    </div>
+                  </div>
+    
+                  <div class="form-row">
+                    <div class="form-group col-md-3">
+                      <label for="photo">Photo</label>
+                      <div class="photo-selector">
+                        <input type="file" id="editphoto" name="photo" accept="image/*">
+                    </div>
+                  </div>
+                    <div class="form-group col-md-3">
+    
+                    <div class="photo-display" id="photoDisplay">
+                        <img id="selectedPhoto" src="" alt="Selected Photo" style="display: none;">
+                    </div>
+                  </div>
+                    </div>
+    
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label for="Doctor">Select Doctor</label>
+                      <select class="form-control" id="editdoctor" name="doctor">
+                        {% for i in doctor_list %}
+                        <option value="{{i.id}}">{{i.first_name}}</option>
+                        {% endfor %}
+                      </select>
+                      <!-- <input
+                        type="text"
+                        class="form-control"
+                        id="editdoctor"
+                        name="doctor"
+                        placeholder="Doctor"
+                      /> -->
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="Doctor">Register method</label>
+                      <select class="form-control" id="editregister_method" name="register_method">
+                        <option value="online">Online</option>
+                        <option value="offline">Offline</option>
+                        \
+                      </select>
+                    </div>
+                  </div>
+                  <div class="alert alert-danger" role="alert" id="validation-messages" style="display: none;"></div>
+              </div>
+              
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Update</button>
+              </div>
+            </div>
+          </div>
+
+
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+<!-- --------------- -->
+
+<div class="modal fade viewpatient" id="viewPatientModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Patient Details</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+
+
+          {% comment %} add medicine {% endcomment %}
+
+         
+
+          {% comment %} ---------------------------------- {% endcomment %}
+          <div class="modal-body">
+              <div class="card">
+                {% if user.user_type == 'D' %}
+                <div class="card-header">
+                  <h5>Add Medicine</h5>
+                </div>
+                <div class="card-header">
+
+                  <div class="row">
+                    <div class="col">
+                        <label for="name">Medicine Name</label>
+                        <!-- <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name"> -->
+                        <select class="form-control" id="name" name="name">
+                          <option value="" disabled selected>Select Time</option>
+                          {% for i in medicine_list %}
+                              <option value="{{ i.name }}">{{ i.name }}</option>
+                          {% endfor %}
+                      </select>
+                    </div>
+                    <div class="col">
+                        <label for="time">Time</label>
+                        <select class="form-control" id="time" name="time">
+                            <option value="" disabled selected>Select Time</option>
+                            {% for value, label in time_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input type="hidden" id="patient_id_popup">
+                    <div class="col">
+                        <label for="medicine_choice">Medicine Choice</label>
+                        <select class="form-control" id="medicine_choice" name="medicine_choice">
+                            <option value="" disabled selected>Select Medicine Choice</option>
+                            {% for value, label in medicine_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label>&nbsp;</label><br>
+                        <button type="button" id="add-row" class="btn btn-primary btn-block mb-2" style="background-color: #4CAF50; border-color: #4CAF50;">Submit</button>
+                    </div>
+                </div>
+                  
+            <div class="card-header">
+              <h5>Medicine List</h5>
+            </div>
+      
+            <table class="table table-bordered table-striped mt-3" id="dynamic-table">
+              <thead style="background-color: #009879; color: white;">
+                  <tr>
+                      <th scope="col">Medicine Name</th>
+                      <th scope="col">Time</th>
+                      <th scope="col">Medicine Choice</th>
+                      <th scope="col">Action</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <!-- Table body content dynamically generated -->
+              </tbody>
+          </table>
+          
+      {% endif %}
+
+                  <div class="card-header">
+                      <h5 class="card-title">Basic Info</h5>
+                  </div>
+                  <div class="card-body">
+                      <div class="row">
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Registration Id:</strong> <span id="registrationId"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Title:</strong> <span id="title"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>First Name:</strong> <span id="firstName"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Last Name:</strong> <span id="lastName"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Rec No:</strong> <span id="recNo"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                            <p class="card-text"><strong>Address:</strong> <span id="address"></span></p>
+                        </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Locality:</strong> <span id="locality"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>City:</strong> <span id="city"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>State:</strong> <span id="state"></span></p>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Age:</strong> <span id="age"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Mobile No:</strong> <span id="mobile"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Email:</strong> <span id="email"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Date of Birth:</strong> <span id="dob"></span></p>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Gender:</strong> <span id="gender"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Guardian Name:</strong> <span id="guardianName"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>OP Number:</strong> <span id="opNumber"></span></p>
+                          </div>
+                          <div class="col-md-4">
+                              <p class="card-text"><strong>Passport Number:</strong> <span id="passportNumber"></span></p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="card mt-3">
+                  <div class="card-header">
+                      <h5 class="card-title">Medical History</h5>
+                  </div>
+                  <div class="card-body">
+                      <div class="row">
+                          <div class="col-md-3">
+                              <p class="card-text"><strong>Blood Group:</strong> <span id="bloodGroup"></span></p>
+                          </div>
+                          <div class="col-md-3">
+                              <p class="card-text"><strong>Medical History:</strong> <span id="medicalHistory"></span></p>
+                          </div>
+                          <div class="col-md-3">
+                              <p class="card-text"><strong>Patient remarks:</strong> <span id="remarks"></span></p>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-6">
+                              <p class="card-text"><strong>Medical conditions:</strong> <span id="medicalConditions"></span></p>
+                          </div>
+                          <div class="col-md-6">
+                              <p class="card-text"><strong>Patient Group:</strong> <span id="Group"></span></p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="card mt-3">
+                  <div class="card-header">
+                      <h5 class="card-title">Other Info</h5>
+                  </div>
+                  <div class="card-body">
+                      <div class="row">
+                          <div class="col-md-3">
+                              <p class="card-text"><strong>Referred By:</strong> <span id="referredBy"></span></p>
+                          </div>
+                          <div class="col-md-3">
+                              <p class="card-text"><strong>Occupation:</strong> <span id="occupation"></span></p>
+                          </div>
+                          <div class="col-md-3">
+                              <p class="card-text"><strong>Photo:</strong> <br><img id="photo" class="img-fluid" alt="Patient Photo"></p>
+                          </div>
+                          <div class="col-md-3">
+                              <p class="card-text"><strong>Specialization:</strong> <span id="specialization"></span></p>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-6">
+                              <p class="card-text"><strong>Select Doctor:</strong> <span id="doctor"></span></p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- ---- -->
+<script>
+
+$(document).ready(function() {
+  $("#patientTable").DataTable();
+});
+
+$('#rgfilter').on( 'change', function () {
+  $('#patientTable').DataTable().column( 5 ).search(
+    $('#rgfilter').val()
+  ).draw();
+});
+
+
+//     $(document).ready(function() {
+// 	document.title='Simple DataTable';
+// 	$('#patientTable').DataTable(
+// 		{
+// 			"dom": '<"dt-buttons"Bf><"clear">lirtp',
+// 			"paging": true,
+// 			"autoWidth": true,
+// 			"buttons": [
+// 				'colvis',
+// 				'copyHtml5',
+//         'csvHtml5',
+// 				'excelHtml5',
+//         'pdfHtml5',
+// 				'print'
+// 			]
+// 		}
+// 	);
+// });
+
+
+
+$(document).ready(function() {
+
+  $('#patientformupdate').on('submit', function(event) {
+    event.preventDefault(); 
+
+    var patient_id_val = $('#patientId').val()
+    console.log("===",patient_id_val)
+    console.log("-----",$(this).serialize())
+
+    $.ajax({
+    type: 'POST',
+    url: `/edit_patient/${patient_id_val}/`,  // Adjust URL format to use backticks for string interpolation
+    data: $(this).serialize(),
+    success: function(response) {
+        console.log("===",response)
+        setTimeout(function() {
+        location.reload();
+    }, 100);  // Hide modal on success
+    },
+    error: function(response) {
+        // Handle errors, e.g., display error messages in the modal
+        $('#editPatientModal .modal-body').html(response.responseText);
+    }
+});
+
+  });
+
+
+    // Handle edit button click
+    $(document).on('click', '.edit-btn', function() {
+        var patientId = $(this).data('patient-id');
+        console.log("Patient ID:", patientId);
+        $.ajax({
+            url: '/fetch_patient_data/',
+            type: 'GET',
+            data: {'patient_id': patientId},
+            dataType: 'json',
+            success: function(data) {
+                console.log("datadata",data)
+                // Populate form fields with fetched data
+                $('#patientId').val(data.id);
+                $('#editregistrationId').val(data.registration_id);
+                $('#editfirstName').val(data.firstname_patient_name);
+                $('#editlastName').val(data.secondname_patient_name);
+                $('#editrecNo').val(data.rec_no);
+                $('#edittitle').val(data.title);
+                $('#editmobile').val(data.mob_no);
+                $('#editemail').val(data.email);
+                $('#editstate').val(data.state);
+                $('#editcity').val(data.city);
+                $('#editlocality').val(data.locality);
+                $('#editaddress').val(data.address);
+                $('#editdob').val(data.dob);
+                $('#editage').val(data.age);
+                $('#editphonenumber').val(data.second_phone_number);
+                $('#editguardianName').val(data.guardian_name);
+                $('#editopNumber').val(data.op_number);
+                $('#editpassportNumber').val(data.passport_number);
+                $('#editdischargeDate').val(data.discharge_date);
+                $('#editgender').val(data.gender);
+                $('#editcountry').val(data.country);
+                $('#editMedicalhistory').val(data.Medicalhistory);
+                $('#editzip').val(data.zip);
+                $('#editbloodgroup1').val(data.bloodgroup);
+                $('#editremarks').val(data.remarks);
+                $('#editfee').val(data.fee);
+                $('#editpayment').val(data.payment);
+                $('#editconditions').val(data.conditions);
+                $('#editpregnant').val(data.pregnant);
+                $('#editoccupation').val(data.occupation);
+                $('#editspecialization').val(data.specialization);
+                $('#editdoctor').val(data.doctor);
+                $('#editreferredBy').val(data.referredBy);
+                $('#editgroup').val(data.patient_group);
+                $('#editregister_method').val(data.register_method);
+            },
+            error: function(xhr, status, error) {
+                // Handle errors if any
+                console.error('Error fetching patient data:', error);
+            }
+        });
+    });
+});
+
+
+$(document).ready(function() {
+        // Handle click event on View Patient button
+        $('.view-btn-patient').click(function() {
+          var patientId = $(this).data('patient-id');
+          console.log("=== Patient ID:", patientId);
+          $('#patient_id_popup').val(patientId);
+  
+          // Clear previous data
+          $('#dynamic-table tbody').empty();
+  
+          // AJAX call to fetch patient details and medicines
+          $.ajax({
+              url: '/patient/' + patientId + '/',  // Updated URL pattern
+              type: 'GET',
+              success: function(response) {
+                  // Display patient details
+                  var patient = response.patient;
+                  $('#viewPatientModal #registrationId').text(patient.registration_id);
+                  $('#viewPatientModal #title').text(patient.title);
+                  $('#viewPatientModal #firstName').text(patient.first_name);
+                  $('#viewPatientModal #lastName').text(patient.last_name);
+                  $('#viewPatientModal #recNo').text(patient.rec_no);
+                  $('#viewPatientModal #address').text(patient.address);
+                  $('#viewPatientModal #locality').text(patient.locality);
+                  $('#viewPatientModal #city').text(patient.city);
+                  $('#viewPatientModal #State').text(patient.state);
+                  $('#viewPatientModal #age').text(patient.age);
+                  $('#viewPatientModal #mobile').text(patient.mobile_number);
+                  $('#viewPatientModal #email').text(patient.email);
+                  $('#viewPatientModal #dob').text(patient.dob);
+                  $('#viewPatientModal #gender').text(patient.gender);
+                  $('#viewPatientModal #guardianName').text(patient.guardian_name);
+                  $('#viewPatientModal #opNumber').text(patient.op_number);
+                  $('#viewPatientModal #passportNumber').text(patient.passport_number);
+                  $('#viewPatientModal #dischargeDate').text(patient.discharge_date);
+                  $('#viewPatientModal #phoneNumber').text(patient.second_phone_number);
+                  $('#viewPatientModal #country').text(patient.country);
+                  $('#viewPatientModal #zip').text(patient.zip_code);
+                  $('#viewPatientModal #bloodGroup').text(patient.blood_group);
+                  $('#viewPatientModal #medicalHistory').text(patient.medical_history);
+                  $('#viewPatientModal #remarks').text(patient.remarks);
+                  $('#viewPatientModal #fee').text(patient.fee);
+                  $('#viewPatientModal #payment').text(patient.payment_status);
+                  $('#viewPatientModal #conditions').text(patient.conditions);
+                  $('#viewPatientModal #pregnant').text(patient.pregnant);
+                  $('#viewPatientModal #referredBy').text(patient.referred_by);
+                  $('#viewPatientModal #occupation').text(patient.occupation);
+                  $('#viewPatientModal #photo').attr('src', patient.photo); // Assuming 'photo' is a URL
+                  $('#viewPatientModal #specialization').text(patient.specialization);
+                  $('#viewPatientModal #doctor').text(patient.doctor);
+  
+                  // Display medicines
+                  $('#dynamic-table tbody').empty();
+                  response.medicines.forEach(function(medicine) {
+                      var row = `
+                          <tr data-medicine-id="${medicine.id}">
+                              <td>${medicine.name}</td>
+                              <td>${medicine.time}</td>
+                              <td>${medicine.medicine_choice}</td>
+                              <td>
+                                  <button type="button" class="btn btn-danger btn-sm delete-medicine" data-medicine-id="${medicine.id}">Delete</button>
+                              </td>
+                          </tr>`;
+                      $('#dynamic-table tbody').append(row);
+                  });
+  
+                  $('#viewPatientModal').modal('show');
+              },
+              error: function(error) {
+                  console.log(error);
+                  // Handle errors
+              }
+          });
+      });
+
+       $(document).on('click', '.delete-medicine', function() {
+        var medicineId = $(this).data('medicine-id');
+
+        // AJAX call to delete medicine
+        $.ajax({
+            url: '/delete-medicine/',  // Update with your delete medicine URL
+            type: 'POST',
+            data: {
+                id: medicineId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'  // Ensure to include CSRF token
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Remove deleted medicine row from table
+                    $('tr[data-medicine-id="' + medicineId + '"]').remove();
+                } else {
+                    alert('Failed to delete medicine.');
+                }
+            },
+            error: function(error) {
+                console.log(error);
+                alert('Error deleting medicine.');
+            }
+        });
+    });
+
+
+    });
+
+
+
+    {% comment %} medicine {% endcomment %}
+    $(document).ready(function() {
+      $('#add-row').on('click', function() {
+          var name = $('#name').val();
+          var time = $('#time').val();
+          var medicine_choice = $('#medicine_choice').val();
+          var patient_id_popup = $('#patient_id_popup').val();
+  
+          if(name && time && medicine_choice) {
+              // AJAX call to save data
+              $.ajax({
+                  url: '/save-data/', // Change to your URL
+                  type: 'POST',
+                  data: {
+                      name: name,
+                      time: time,
+                      medicine_choice: medicine_choice,
+                      patient_id_popup: patient_id_popup,
+                      csrfmiddlewaretoken: '{{ csrf_token }}' // For Django CSRF protection
+                  },
+                  success: function(response) {
+                      var row = `<tr data-id="${response.id}">
+                          <td>${name}</td>
+                          <td>${time}</td>
+                          <td>${medicine_choice}</td>
+                          <td><button type="button" class="btn btn-danger btn-sm delete-row">Delete</button></td>
+                      </tr>`;
+                      $('#dynamic-table tbody').append(row);
+                      $('#name').val('');
+                      $('#time').val('');
+                      $('#medicine_choice').val('');
+                  },
+                  error: function(error) {
+                      console.log(error);
+                  }
+              });
+          }
+      });
+  
+      $(document).on('click', '.delete-row', function() {
+          var row = $(this).closest('tr');
+          var id = row.data('id');
+          $.ajax({
+              url: '/delete-data/', // Change to your URL
+              type: 'POST',
+              data: {
+                  id: id,
+                  csrfmiddlewaretoken: '{{ csrf_token }}' // For Django CSRF protection
+              },
+              success: function(response) {
+                  if (response.success) {
+                      row.remove();
+                  } else {
+                      alert('Failed to delete data.');
+                  }
+              },
+              error: function(error) {
+                  console.log(error);
+              }
+          });
+      });
+  });
+
+</script>
+
+{% endblock %}
